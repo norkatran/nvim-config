@@ -2,4 +2,4 @@
 
 (fn format [?file] (do (let [file (if ?file ?file (get-buffer-name))] (: (vim.system [:fnlfmt :--fix file]) :wait))))
 
-{ :format format :pattern :*.fnl}
+{ :formatter "fnlfmt --fix" :pattern :*.fnl}
