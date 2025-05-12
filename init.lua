@@ -1,50 +1,58 @@
+-- Load core modules
 require "options"
 require "bootstrap"
 
+-- Initialize lazy.nvim
 require("lazy").setup("plugins")
 
+-- Load utility modules
+local utils = require("utils")
+local ui_utils = require("utils.ui")
+local plugin_utils = require("utils.plugins")
+local config = require("config")
+
+-- Load keybindings
 require "keybinds"
 
-require("nvim-web-devicons").setup {}
-require("nvim-treesitter.configs").setup {
-  ensure_installed = { "lua", "vim", "vimdoc", "markdown", "markdown_inline", "php", "cpp", "diff", "phpdoc", "typescript" },
-
-  sync_install = false
+-- Setup plugins with common configurations
+local plugin_configs = {
+  ["nvim-web-devicons"] = {},
+  ["nvim-treesitter.configs"] = config.plugins.treesitter,
+  ["fidget"] = {},
+  ["telescope"] = config.plugins.telescope,
+  ["lualine"] = config.plugins.lualine,
+  ["Comment"] = config.plugins.comment,
+  ["mini.surround"] = {}
 }
 
-require('fidget').setup()
+-- Setup all plugins with their configurations
+plugin_utils.setup_multiple(plugin_configs)
 
-local actions = require("telescope.actions")
-require("telescope").setup {
-  defaults = {
-    mappings = {
-      i = {
-        ["<esc>"] = actions.close
-      }
-    }
-  }
-}
+-- Load telescope extensions
 require('telescope').load_extension('fidget')
 
-require("lualine").setup({
-  options = {
-    theme = "wombat"
-  }
-})
-
-require("Comment").setup {
-  ignore = "^$"
-}
-
-require("mini.surround").setup {}
-
+-- Setup LSP
 require("mason").setup()
-require("mason-lspconfig").setup {
-  ensure_installed = { "lua_ls", "phpactor" },
-  automatic_installation = true,
-}
+require("mason-lspconfig").setup(config.plugins.mason)
+
+-- Setup LSP handlers with improved configuration
 require("mason-lspconfig").setup_handlers {
   function (server_name)
-    require("lspconfig")[server_name].setup {}
+    local server_config = plugin_utils.lsp.server_configs[server_name] or {}
+
+    -- Add default capabilities and on_attach if not specified
+    if not server_config.on_attach then
+      server_config.on_attach = plugin_utils.lsp.on_attach
+    end
+
+    if not server_config.capabilities then
+      server_config.capabilities = plugin_utils.lsp.capabilities()
+    end
+
+    require("lspconfig")[server_name].setup(server_config)
   end,
 }
+
+-- Set up auto gitlab notification fetching
+local gitlab = require("utils.gitlab")
+gitlab.setup_notification_timer()

@@ -131,7 +131,9 @@ return {
             height = 5,
             padding = 1,
             ttl = 0,
-            indent = 3
+            indent = 3,
+            key = 'g',
+            action = ":Telescope git_status"
           },
           {
             enabled = check_glab_repo,
@@ -142,6 +144,10 @@ return {
             height = 5,
             padding = 1,
             ttl = 60,
+            key = 'm',
+            action = function ()
+              vim.ui.open('https://gitlab.corp.friendmts.com/dashboard/merge_requests?assignee_username=mlysander')
+            end,
           },
           {
             enabled = check_glab_repo,
@@ -152,6 +158,10 @@ return {
             height = 5,
             padding = 1,
             ttl = 60,
+            key = 'r',
+            action = function ()
+              vim.ui.open('https://gitlab.corp.friendmts.com/dashboard/merge_requests?reviewer_username=mlysander')
+            end,
           },
           {
             enabled = check_glab_repo,
@@ -162,6 +172,10 @@ return {
             height = 5,
             padding = 1,
             ttl = 60,
+            key = 'n',
+            action = function ()
+              vim.ui.open('https://gitlab.corp.friendmts.com/dashboard/todos')
+            end,
           },
           { section = 'startup' }
         },
@@ -170,9 +184,7 @@ return {
           keys = {
             { icon = " ", key = "f", desc = "Find File", action = ":lua Snacks.dashboard.pick('files')" },
             { icon = " ", key = "d", desc = "Dir", action = ":Neotree position=float" },
-            { icon = " ", key = "n", desc = "New File", action = ":ene | startinsert" },
             { icon = " ", key = "/", desc = "Find Text", action = ":lua Sancks.dashboard.pick('live_grep')" },
-            { icon = " ", key = "r", desc = "Recent Files", action = ":Telescope oldfiles" },
             { icon = " ", key = "c", desc = "Config", action = ":e ~/.config/nvim/init.lua | :next ~/.config/nvim/lua/*.lua" },
             { icon = " ", key = "s", desc = "Restore Session", section = "session" },
             -- { icon = " ", key = "x", desc = "Lazy Extras", action = ":LazyExtras" },
@@ -202,5 +214,14 @@ return {
   { 'airblade/vim-rooter' },
   {
     'j-hui/fidget.nvim',
+    opts = {
+      notification = {
+        configs = {
+          default = {
+            ttl = 300
+          }
+        }
+      }
+    }
   },
 }
