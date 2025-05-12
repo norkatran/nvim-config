@@ -12,7 +12,8 @@
             ((. (require :mason-lspconfig) :setup) {:automatic_enable false
                                                     :ensure_installed [:lua_ls
                                                                        :intelephense
-                                                                       :marksman]
+                                                                       :marksman
+                                                                       :fennel_ls]
                                                     :handlers {1 (fn [server-name]
                                                                    ((. (require :lspconfig)
                                                                        server-name

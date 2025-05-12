@@ -28,7 +28,7 @@
                        {: lines
                         :on_submit (fn [x]
                                      (if (?. x :action) ((. x :action))))})]
-        (: menu :mount)))))
+        (menu:mount)))))
 
 (fn create-menu-with-key [title items mappings]
   (let [Menu (require :nui.menu)

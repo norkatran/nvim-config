@@ -1,8 +1,5 @@
-(vim.api.nvim_create_autocmd :BufWritePre
-                             {:group :fennel
-                              :callback (fn [args]
-                                          (if (string.match args.file :.fnl$)
-                                              (let [fname (vim.uri_to_fname (vim.uri_from_bufnr args.buf))]
-                                                (vim.fn.system [:fnlfmt
-                                                                :--fix
-                                                                fname]))))})
+(fn get-buffer-name [?buf] (vim.api.nvim_buf_get_name (if ?buf ?buf (vim.api.nvim_get_current_buf))))
+
+(fn format [?file] (do (let [file (if ?file ?file (get-buffer-name))] (: (vim.system [:fnlfmt :--fix file]) :wait))))
+
+{ :format format :pattern :*.fnl}

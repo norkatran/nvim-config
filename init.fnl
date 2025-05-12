@@ -1,6 +1,7 @@
 ;; init.fnl
 
 (require :options.vim)
+(require :mode)
 
 (fn ensure-installed [plugin branch]
   (let [(_ repo) (string.match plugin "(.+)/(.+)")

@@ -1,4 +1,5 @@
 require("options.vim")
+require("mode")
 local function ensure_installed(plugin, branch)
   local _, repo = string.match(plugin, "(.+)/(.+)")
   local repo_path = (vim.fn.stdpath("data") .. "/lazy/" .. repo)

@@ -1,4 +1,4 @@
-(macro cmd! [x] (.. :<Cmd> x :<CR>))
+(   macro cmd! [x] (.. :<Cmd> x :<CR>))
 (macro wincmd! [x]
   `(fn [] (vim.cmd.wincmd ,x)))
 
@@ -110,6 +110,9 @@
                                  [:d
                                   (cmd! :BufferClose)
                                   {:desc "Close Buffer"}]])
+                 ;;(leader-group! :mode [
+                 ;;[:f (module-call! :mode :format) {:desc :Format}]
+                 ;;])
                  (leader! [:r
                            (cmd! "Telescope registers")
                            {:desc "View Registers"}])
@@ -140,5 +143,9 @@
                                         opts))))
 
 (each [_ binding (pairs bindings)] (add-mapping binding))
+
+(table.insert mappings
+              {1 :<leader>m :group :mode :expand (module-call! :mode :expand)})
+
 (do
   ((. (require :which-key) :add) mappings))
