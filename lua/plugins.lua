@@ -1,17 +1,4 @@
-local is_glab_repo = nil
-
-local function check_glab_repo()
-  if is_glab_repo == true or is_glab_repo == false then
-    return is_glab_repo
-  end
-  if not Snacks.git.get_root() then
-    is_glab_repo = false
-    return is_glab_repo
-  end
-  local obj = vim.system({ 'glab', 'mr', 'list' }):wait()
-  is_glab_repo = obj.code == 0
-  return is_glab_repo
-end
+local gitlab = require('utils/gitlab')
 
 return {
   "nvim-tree/nvim-web-devicons",
@@ -43,7 +30,13 @@ return {
   },
   {
     "folke/which-key.nvim",
-    event = "VeryLazy"
+    event = "VeryLazy",
+    opts = {
+      preset = 'modern',
+      filter = function (mapping)
+        return mapping.desc and mapping.desc ~= 'Dashboard action'
+      end,
+    }
   },
   {
     "numToStr/Comment.nvim",
@@ -105,7 +98,7 @@ return {
   --   }
   -- },
   {
-    "snacks.nvim",
+    "folke/snacks.nvim",
     opts = {
       dashboard = {
         sections = {
@@ -136,7 +129,7 @@ return {
             action = ":Telescope git_status"
           },
           {
-            enabled = check_glab_repo,
+            enabled = gitlab.check_glab_repo,
             title = 'Oustanding MRs',
             section = 'terminal',
             cmd = "glab api graphql -f query=' query { root: user(username: \"mlysander\") { MRs: assignedMergeRequests(state: opened) { nodes { title, state } } } }' | jq -r '.data.root.MRs.nodes | .[] | [.title, .state] | @tsv'",
@@ -150,7 +143,7 @@ return {
             end,
           },
           {
-            enabled = check_glab_repo,
+            enabled = gitlab.check_glab_repo,
             title = 'Oustanding Reviews',
             section = 'terminal',
             cmd = "glab api graphql -f query=' query { root: user(username: \"mlysander\") { Issues: reviewRequestedMergeRequests(state: opened) { nodes { title, state } } } }' | jq -r '.data.root.Issues.nodes | .[] | [.title, .state] | @tsv'",
@@ -164,7 +157,7 @@ return {
             end,
           },
           {
-            enabled = check_glab_repo,
+            enabled = gitlab.check_glab_repo,
             title = 'Notifications',
             section = 'terminal',
             cmd = "glab api graphql -f query=' query { root: user(username: \"mlysander\") { ToDos: todos(state: pending) { nodes { action, body } } } }' | jq -r '.data.root.ToDos.nodes | .[] | [.action, .body] | @tsv'",

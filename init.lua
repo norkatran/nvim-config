@@ -6,22 +6,21 @@ require "bootstrap"
 require("lazy").setup("plugins")
 
 -- Load utility modules
-local utils = require("utils")
-local ui_utils = require("utils.ui")
 local plugin_utils = require("utils.plugins")
-local config = require("config")
+local config = require("config.init")
 
 -- Load keybindings
 require "keybinds"
 
+local plugin_defaults = config.create_plugin_configs()
 -- Setup plugins with common configurations
 local plugin_configs = {
   ["nvim-web-devicons"] = {},
-  ["nvim-treesitter.configs"] = config.plugins.treesitter,
+  ["nvim-treesitter.configs"] = plugin_defaults.treesitter,
   ["fidget"] = {},
-  ["telescope"] = config.plugins.telescope,
-  ["lualine"] = config.plugins.lualine,
-  ["Comment"] = config.plugins.comment,
+  ["telescope"] = plugin_defaults.telescope,
+  ["lualine"] = plugin_defaults.lualine,
+  ["Comment"] = plugin_defaults.comment,
   ["mini.surround"] = {}
 }
 
@@ -33,7 +32,7 @@ require('telescope').load_extension('fidget')
 
 -- Setup LSP
 require("mason").setup()
-require("mason-lspconfig").setup(config.plugins.mason)
+require("mason-lspconfig").setup(plugin_defaults.mason)
 
 -- Setup LSP handlers with improved configuration
 require("mason-lspconfig").setup_handlers {

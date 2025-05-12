@@ -2,6 +2,7 @@ vim.g.mapleader = " "
 
 -- Leader key is used to set mnemonic groups of functionality
 local gitlab = require("utils.gitlab")
+local git = require("utils.git")
 
 local wk = require('which-key')
 
@@ -18,18 +19,26 @@ wk.add({
   { '<leader>wk', function () vim.cmd.wincmd('k') end, desc = 'Window Up', },
   { '<leader>wl', function () vim.cmd.wincmd('l') end, desc = 'Window Right', },
 
-  -- { '<leader>f, group = 'Files', },
+  { '<leader>g', group = 'Git' },
+  { '<leader>gv', group = 'Git Viewer', },
+  { '<leader>gvf', function () require('telescope.builtin').git_files{} end, desc = 'Git files', },
+  { '<leader>gvS', function () require('telescope.builtin').git_stash{} end, desc = 'Git stashes', },
+  { '<leader>gvs', function () require('telescope.builtin').git_status{} end, desc = 'Git status', },
 
-  { '<leader>g', group = 'GitLab' },
-  { '<leader>gg', function ()
+  { '<leader>ge', group = 'Git Editor', },
+  { '<leader>geC', function () git.commit_multi_line() end, desc = 'Commit (multi line)'},
+  { '<leader>gec', function () git.commit_single_line() end, desc = 'Commit (single line)'},
+
+  { '<leader>gl', group = 'GitLab' },
+  { '<leader>glg', function ()
     gitlab.display_gitlab_graph(nil, true)
-  end, desc = 'Display GitLab (mlysander)', cond = gitlab.check_glab_repo },
-  { '<leader>gu', function ()
+  end, desc = 'Query Me', cond = gitlab.check_glab_repo },
+  { '<leader>glu', function ()
     gitlab.glab_input()
-  end, desc = 'Display GitLab - other user', cond = gitlab.check_glab_repo },
-  { '<leader>gn', function ()
+  end, desc = 'Query Other User', cond = gitlab.check_glab_repo },
+  { '<leader>gln', function ()
     gitlab.notify_gitlab_notifications()
-  end, desc = 'Gitlab notifications (fidget)', cond = gitlab.check_glab_repo },
+  end, desc = 'Refresh notifications (fidget)', cond = gitlab.check_glab_repo },
 
   { '<leader>n', group = 'Notifications' },
   { '<leader>nn', function () require('telescope').extensions.fidget.fidget() end, desc = 'View Notification History' },

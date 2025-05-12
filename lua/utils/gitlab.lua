@@ -1,7 +1,7 @@
 -- utils/gitlab.lua
 -- GitLab utility functions
 
-local merge = require('utils/common').merge_tables
+local merge = require('utils.common').merge_tables
 
 local M = {}
 
