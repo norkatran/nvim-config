@@ -1,8 +1,7 @@
-local gitlab = require('utils.gitlab')
+local git = require('plugin.git.init')
 
 return {
   "nvim-tree/nvim-web-devicons",
-  -- "nvim-tree/nvim-tree.lua",
   {
     "nvim-lualine/lualine.nvim",
     config = function ()
@@ -12,26 +11,29 @@ return {
           lualine_a = { 'mode' },
           lualine_b = { 'branch', 'diff', 'diagnostics' },
           lualine_c = { 'filename', function ()
-            local state = gitlab.outstanding_gitlab_notifications()
+            local mrs = #git.get_mrs()
+            local reviews = #git.get_review_requests()
+            local todos = #git.get_todos()
+
             local msg = ''
-            if state == nil or (state.mrs == 0 and state.reviews == 0 and state.todos == 0) then
+            if mrs == 0 and reviews == 0 and todos == 0 then
               return msg
             end
 
-            if state.mrs > 0 then
-              msg = 'MRs ' .. state.mrs
+            if mrs > 0 then
+              msg = 'MRs ' .. mrs
             end
-            if state.reviews > 0 then
+            if reviews > 0 then
               if msg ~= '' then
                 msg = msg .. ' | '
               end
-              msg = msg .. 'Reviews ' .. state.reviews
+              msg = msg .. 'Reviews ' .. reviews
             end
-            if state.todos > 0 then
+            if todos > 0 then
               if msg ~= '' then
                 msg = msg .. ' | '
               end
-              msg = msg .. 'To Dos ' .. state.todos
+              msg = msg .. 'To Dos ' .. todos
             end
             return msg
           end },
@@ -163,49 +165,49 @@ return {
             padding = 1,
             ttl = 0,
             indent = 3,
-            key = 'g',
+            key = 's',
             action = ":Telescope git_status"
           },
           {
-            enabled = gitlab.check_glab_repo,
+            enabled = git.is_gitlab_repo,
             title = 'Oustanding MRs',
             section = 'terminal',
-            cmd = "glab api graphql -f query=' query { root: user(username: \"mlysander\") { MRs: assignedMergeRequests(state: opened) { nodes { title, state } } } }' | jq -r '.data.root.MRs.nodes | .[] | [.title, .state] | @tsv'",
+            cmd = "glab api graphql -f query=' query { root: currentUser { MRs: assignedMergeRequests(state: opened) { nodes { title, state } } } }' | jq -r '.data.root.MRs.nodes | .[] | [.title, .state] | @tsv'",
             pane = 2,
             height = 5,
             padding = 1,
             ttl = 60,
             key = 'm',
             action = function ()
-              vim.ui.open('https://gitlab.corp.friendmts.com/dashboard/merge_requests?assignee_username=mlysander')
+              git.list_mrs()
             end,
           },
           {
-            enabled = gitlab.check_glab_repo,
+            enabled = git.is_gitlab_repo,
             title = 'Oustanding Reviews',
             section = 'terminal',
-            cmd = "glab api graphql -f query=' query { root: user(username: \"mlysander\") { Issues: reviewRequestedMergeRequests(state: opened) { nodes { title, state } } } }' | jq -r '.data.root.Issues.nodes | .[] | [.title, .state] | @tsv'",
+            cmd = "glab api graphql -f query=' query { root: currentUser { Issues: reviewRequestedMergeRequests(state: opened) { nodes { title, state } } } }' | jq -r '.data.root.Issues.nodes | .[] | [.title, .state] | @tsv'",
             pane = 2,
             height = 5,
             padding = 1,
             ttl = 60,
             key = 'r',
             action = function ()
-              vim.ui.open('https://gitlab.corp.friendmts.com/dashboard/merge_requests?reviewer_username=mlysander')
+              git.list_review_requests()
             end,
           },
           {
-            enabled = gitlab.check_glab_repo,
+            enabled = git.is_gitlab_repo,
             title = 'Notifications',
             section = 'terminal',
-            cmd = "glab api graphql -f query=' query { root: user(username: \"mlysander\") { ToDos: todos(state: pending) { nodes { action, body } } } }' | jq -r '.data.root.ToDos.nodes | .[] | [.action, .body] | @tsv'",
+            cmd = "glab api graphql -f query=' query { root: currentUser { ToDos: todos(state: pending) { nodes { action, body } } } }' | jq -r '.data.root.ToDos.nodes | .[] | [.action, .body] | @tsv'",
             pane = 2,
             height = 5,
             padding = 1,
             ttl = 60,
             key = 'n',
             action = function ()
-              vim.ui.open('https://gitlab.corp.friendmts.com/dashboard/todos')
+              git.list_todos()
             end,
           },
           { section = 'startup' }
@@ -214,11 +216,10 @@ return {
           header = [[ Marnie - NVIM ]],
           keys = {
             { icon = " ", key = "f", desc = "Find File", action = ":lua Snacks.dashboard.pick('files')" },
-            { icon = " ", key = "d", desc = "Dir", action = ":Neotree position=float" },
-            { icon = " ", key = "/", desc = "Find Text", action = ":lua Sancks.dashboard.pick('live_grep')" },
+            { icon = " ", key = "d", desc = "Dir", action = ":Neotree position=float" },
+            { icon = " ", key = "/", desc = "Find Text", action = ":lua Snacks.dashboard.pick('live_grep')" },
             { icon = " ", key = "c", desc = "Config", action = ":Neotree position=float dir=~/.config/nvim" },
-            { icon = " ", key = "s", desc = "Restore Session", section = "session" },
-            -- { icon = " ", key = "x", desc = "Lazy Extras", action = ":LazyExtras" },
+            { icon = " ", key = "g", desc = "Git Repos", action = ":lua require('plugin.git.init').list_repos {}" },
             { icon = "󰒲 ", key = "l", desc = "Lazy", action = ":Lazy" },
             { icon = " ", key = "q", desc = "Quit", action = ":qa" },
           },
@@ -248,11 +249,6 @@ return {
     opts = {
       notification = {
         override_vim_notify = true,
-        configs = {
-          default = {
-            ttl = 300
-          }
-        }
       }
     }
   },

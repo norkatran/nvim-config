@@ -19,7 +19,6 @@ local plugin_configs = {
   ["nvim-treesitter.configs"] = plugin_defaults.treesitter,
   ["fidget"] = {},
   ["telescope"] = plugin_defaults.telescope,
-  ["lualine"] = plugin_defaults.lualine,
   ["Comment"] = plugin_defaults.comment,
   ["mini.surround"] = {}
 }
@@ -52,6 +51,5 @@ require("mason-lspconfig").setup_handlers {
   end,
 }
 
--- Set up auto gitlab notification fetching
-local gitlab = require("utils.gitlab")
-gitlab.setup_notification_timer()
+require('plugin.git.init')
+

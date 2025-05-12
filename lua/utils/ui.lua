@@ -49,10 +49,62 @@ M.create_menu = function (title, in_items)
       if item.action then
         item.action()
       end
-    end
+    end,
   })
 
   menu:mount()
+end
+
+M.create_menu_with_key = function (title, in_items, mappings)
+  local Menu = require('nui.menu')
+  local Layout = require('nui.layout')
+  local Popup = require('nui.popup')
+  local items = {}
+  for _, obj in pairs(in_items) do
+    if obj.separator then
+      table.insert(items, Menu.separator(obj.text, { char = '-', text_align = 'center' }))
+    else
+      table.insert(items, Menu.item(obj))
+    end
+  end
+
+  local current_node = nil
+  local menu = Menu(M.centered_float_config(title), {
+    lines = items,
+    on_submit = function (item)
+      if item.action then
+        item.action()
+      end
+    end,
+    on_change = function (item)
+      current_node = item
+    end
+  })
+
+  local get_keymap_args = function ()
+    return { node = current_node, menu = menu }
+  end
+
+  for _, map in pairs(mappings) do
+    menu:map('n', map[1], function () map[2](get_keymap_args()) end)
+  end
+
+  local popup = Popup(M.centered_float_config('Key'))
+
+  for i,map in ipairs(mappings) do
+    local text = map[1] .. '\t' .. map.desc
+    vim.api.nvim_buf_set_lines(popup.bufnr, i, -1, false, { text })
+  end
+
+  local layout = Layout(
+    M.centered_float_config(title),
+    Layout.Box({
+      Layout.Box(menu, { size = '75%' }),
+      Layout.Box(popup, { size = '25%' })
+    }, { dir = 'row' })
+  )
+
+  layout:mount()
 end
 
 -- Create a floating scratchpad
