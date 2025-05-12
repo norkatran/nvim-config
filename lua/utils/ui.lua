@@ -56,24 +56,33 @@ M.create_menu = function (title, in_items)
 end
 
 -- Create a floating scratchpad
-M.create_textbox = function (title, default, handler)
+M.create_textbox = function (title, default, handler, opts)
   local Popup = require('nui.popup')
   local event = require('nui.utils.autocmd').event
 
-  local popup = Popup({ enter = true, focusable = true })
-
-  popup:update_layout(M.centered_float_config(title))
+  local config = M.centered_float_config(title)
+  config.enter = true
+  config.focusable = true
+  local popup = Popup(config)
 
   local close_popup = function ()
     handler(vim.api.nvim_buf_get_lines(popup.bufnr, 0, -1, false))
     popup:unmount()
   end
 
-  popup:map("n", "<esc>", close_popup, { noremap = true })
   popup:on(event.BufLeave, close_popup)
 
   if default then
     vim.api.nvim_buf_set_lines(popup.bufnr, 0, -1, false, default)
+  end
+
+  opts = opts or {}
+  if not opts.modifiable then
+    opts.modifiable = true
+  end
+
+  for k, v in pairs(opts) do
+    vim.api.nvim_set_option_value(k, v, { buf = popup.bufnr })
   end
 
   popup:mount()

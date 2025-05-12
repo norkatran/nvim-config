@@ -43,12 +43,21 @@ wk.add({
   { '<leader>n', group = 'Notifications' },
   { '<leader>nn', function () require('telescope').extensions.fidget.fidget() end, desc = 'View Notification History' },
 
+  { '<leader>s', group = 'Scratchpad' },
+  { '<leader>so', function () require('utils.workbook').open_scratchpad_in_window() end, desc = 'Open scratchpad as file' },
+  { '<leader>ss', function () require('utils.workbook').scratchpad() end, desc = 'Open scratchpad' },
+  { '<leader>s<leader>', function () require('utils.workbook').view_scratchpads() end, desc = 'View scratchpads' },
+  { '<leader>s/', function () require('utils.workbook').grep_scratchpads() end, desc = 'Grep scratchpads' },
+
   { '<leader>b', group = 'Buffers', },
   { '<leader>bb', '<Cmd>Telescope buffers<CR>', desc = 'View Buffers', },
   { '<leader>bn', '<Cmd>BufferNext<CR>', desc = 'Next Buffer', },
   { '<leader>bN', '<Cmd>BufferPrevious<CR>', desc = 'Previous Buffer', },
   { '<leader>bp', '<Cmd>BufferPick<CR>', desc = 'Pick Buffer', },
   { '<leader>bd', '<Cmd>BufferClose<CR>', desc = 'Close Buffer', },
+
+  { '<leader>r', group = 'Registers', },
+  { '<leader>rr', '<Cmd>Telescope registers<CR>', desc = 'View Registers', },
 
   { '<leader>ft', '<Cmd>Neotree position=float<CR>', desc = 'View Directory', },
 

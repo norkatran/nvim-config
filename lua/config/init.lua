@@ -1,6 +1,8 @@
 -- config/init.lua
 -- Central configuration module
 
+local gitlab = require('utils.gitlab')
+
 local M = {}
 
 -- Common plugin configurations
@@ -24,7 +26,19 @@ M.create_plugin_configs = function ()
     -- Lualine configuration
     lualine = {
       options = {
-        theme = "wombat"
+        theme = "powerline_dark",
+        sections = {
+          -- left
+          lualine_a = { 'mode' },
+          lualine_b = { 'branch', 'diff', 'diagnostics' },
+          lualine_c = { 'filename', function () return [[aaa]] end, gitlab.outstanding_gitlab_notifications },
+
+          -- right
+          lualine_x = { 'encoding', 'fileformat', 'filetype' },
+          lualine_y = { 'progress' },
+          lualine_z = { 'location' }
+
+        }
       }
     },
 

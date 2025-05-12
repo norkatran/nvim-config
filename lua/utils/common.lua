@@ -13,4 +13,12 @@ M.merge_tables = function (input)
   return out
 end
 
+M.string_split = function (s, delimiter, prefix)
+    local result = { '' };
+    for match in (s..delimiter):gmatch("(.-)"..delimiter) do
+        table.insert(result, (prefix or '') .. match);
+    end
+    return result;
+end
+
 return M

@@ -1,9 +1,47 @@
-local gitlab = require('utils/gitlab')
+local gitlab = require('utils.gitlab')
 
 return {
   "nvim-tree/nvim-web-devicons",
   -- "nvim-tree/nvim-tree.lua",
-  "nvim-lualine/lualine.nvim",
+  {
+    "nvim-lualine/lualine.nvim",
+    config = function ()
+      require("lualine").setup {
+        theme = "powerline_dark",
+        sections = {
+          lualine_a = { 'mode' },
+          lualine_b = { 'branch', 'diff', 'diagnostics' },
+          lualine_c = { 'filename', function ()
+            local state = gitlab.outstanding_gitlab_notifications()
+            local msg = ''
+            if state == nil or (state.mrs == 0 and state.reviews == 0 and state.todos == 0) then
+              return msg
+            end
+
+            if state.mrs > 0 then
+              msg = 'MRs ' .. state.mrs
+            end
+            if state.reviews > 0 then
+              if msg ~= '' then
+                msg = msg .. ' | '
+              end
+              msg = msg .. 'Reviews ' .. state.reviews
+            end
+            if state.todos > 0 then
+              if msg ~= '' then
+                msg = msg .. ' | '
+              end
+              msg = msg .. 'To Dos ' .. state.todos
+            end
+            return msg
+          end },
+          lualine_x = { 'encoding', 'fileformat', 'filetype' },
+          lualine_y = { 'progress' },
+          lualine_z = { 'location' }
+        }
+      }
+    end
+  },
   { "nvim-lua/plenary.nvim", lazy = true },
   "nvim-telescope/telescope.nvim",
   { "polarmutex/git-worktree.nvim", branch = "devel" },
@@ -178,7 +216,7 @@ return {
             { icon = " ", key = "f", desc = "Find File", action = ":lua Snacks.dashboard.pick('files')" },
             { icon = " ", key = "d", desc = "Dir", action = ":Neotree position=float" },
             { icon = " ", key = "/", desc = "Find Text", action = ":lua Sancks.dashboard.pick('live_grep')" },
-            { icon = " ", key = "c", desc = "Config", action = ":e ~/.config/nvim/init.lua | :next ~/.config/nvim/lua/*.lua" },
+            { icon = " ", key = "c", desc = "Config", action = ":Neotree position=float dir=~/.config/nvim" },
             { icon = " ", key = "s", desc = "Restore Session", section = "session" },
             -- { icon = " ", key = "x", desc = "Lazy Extras", action = ":LazyExtras" },
             { icon = "󰒲 ", key = "l", desc = "Lazy", action = ":Lazy" },
@@ -209,6 +247,7 @@ return {
     'j-hui/fidget.nvim',
     opts = {
       notification = {
+        override_vim_notify = true,
         configs = {
           default = {
             ttl = 300
@@ -217,4 +256,11 @@ return {
       }
     }
   },
+  {
+    'm4xshen/hardtime.nvim',
+    dependencies = {
+      "MunifTanjim/nui.nvim",
+    },
+    opts = {}
+  }
 }

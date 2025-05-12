@@ -3,14 +3,14 @@
 
 local merge = require('utils.common').merge_tables
 
+-- TODO: store graph cache under this path
+-- vim.fn.stdpath('cache')
+
 local M = {}
 
 -- Cache for GitLab data
 M.graph_cache = {
   graph = nil,
-  mrs = {},
-  reviews = {},
-  notifications = {},
   time = nil
 }
 
@@ -30,26 +30,35 @@ M.check_glab_repo = function()
   return M.is_glab_repo
 end
 
+M.execute_graphql = function(ql)
+  local content = vim.fn.system("glab api graphql -f query='" .. ql .. "'")
+  vim.notify('graphql response: ' .. content, vim.log.levels.DEBUG)
+  return content
+end
+
 -- Get GraphQL data for current user
 M.my_graphql = function(use_cache)
   if M.graph_cache.graph ~= nil and use_cache then
     return M.graph_cache.graph
   end
-  local content = vim.fn.system("glab api graphql -f query=' query { root: currentUser { MRs: assignedMergeRequests(state: opened) { nodes { title, webUrl } }, Issues: reviewRequestedMergeRequests(state: opened) { nodes { title, webUrl } }, ToDos: todos(state: pending) { nodes { id, action, body, targetUrl } } } }' | jq .data.root")
-  local json = vim.json.decode(content)
+  local content = M.execute_graphql("query { root: currentUser { MRs: assignedMergeRequests(state: opened) { nodes { title, webUrl } }, Issues: reviewRequestedMergeRequests(state: opened) { nodes { title, webUrl } }, ToDos: todos(state: pending) { nodes { id, action, body, targetUrl } } } }")
+  local json = vim.json.decode(content).data.root
   M.graph_cache.graph = json
   return json
 end
 
 -- Get GraphQL data for specific user
 M.graphql_for_user = function(user)
-  local content = vim.fn.system("glab api graphql -f query=' query { root: user(username: \""..user.."\") { MRs: assignedMergeRequests(state: opened) { nodes { title, webUrl } }, Issues: reviewRequestedMergeRequests(state: opened) { nodes { title, webUrl } }, ToDos: todos(state: pending) { nodes { action, body, targetUrl } } } }' | jq .data.root")
-  local json = vim.json.decode(content)
+  local content = M.execute_graphql("query { root: user(username: \""..user.."\") { MRs: assignedMergeRequests(state: opened) { nodes { title, webUrl } }, Issues: reviewRequestedMergeRequests(state: opened) { nodes { title, webUrl } }, ToDos: todos(state: pending) { nodes { action, body, targetUrl } } } }")
+  local json = vim.json.decode(content).data.root
   return json
 end
 
 -- Format MRs for display
 M.get_graph_mrs = function(resp)
+  if (not resp) or (not resp.MRs) or (not resp.MRs.nodes) then
+    return {}
+  end
   local json = resp.MRs.nodes
   local lines = { }
   table.insert(lines, { text = 'Opened MRs', separator = true })
@@ -63,6 +72,9 @@ end
 
 -- Format reviews for display
 M.get_graph_reviews = function(resp)
+  if (not resp) or (not resp.Issues) or (not resp.Issues.nodes) then
+    return {}
+  end
   local json = resp.Issues.nodes
   local lines = {}
   table.insert(lines, { text = 'Pending Reviews', separator = true })
@@ -76,6 +88,9 @@ end
 
 -- Format notifications for display
 M.get_graph_notifications = function(resp)
+  if (not resp) or (not resp.ToDos) or (not resp.ToDos.nodes) then
+    return {}
+  end
   local json = resp.ToDos.nodes
   local lines = {}
   table.insert(lines, { text = 'Notifications', separator = true })
@@ -114,6 +129,9 @@ end
 
 -- Notify GitLab notifications
 M.notify_gitlab_notifications = function()
+  if not M.check_glab_repo() then
+    return
+  end
   local group = 'status'
   local fidget = require('fidget.notification')
 
@@ -136,6 +154,8 @@ M.notify_gitlab_notifications = function()
   )
 
   require('fidget.progress').poll()
+
+  require('lualine').refresh()
 end
 
 -- Setup notification timer
@@ -146,6 +166,30 @@ M.setup_notification_timer = function()
       M.notify_gitlab_notifications()
     end))
   end
+end
+
+M.outstanding_gitlab_notifications = function ()
+  if not M.check_glab_repo() then
+    return nil
+  end
+  local graph = M.my_graphql(true)
+  local mrs = 0
+  if graph and graph.MRs and graph.MRs.nodes then
+    mrs = #graph.MRs.nodes
+  end
+  local reviews = 0
+  if graph and graph.Issues and graph.Issues.nodes then
+    reviews = #graph.Issues.nodes
+  end
+  local notifications = 0
+  if graph and graph.ToDos and graph.ToDos.nodes then
+    notifications = #graph.ToDos.nodes
+  end
+  return {
+    mrs = mrs,
+    reviews = reviews,
+    todos = notifications,
+  }
 end
 
 return M
