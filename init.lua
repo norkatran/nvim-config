@@ -1,8 +1,9 @@
 require "options"
-require "keybinds"
 require "bootstrap"
 
 require("lazy").setup("plugins")
+
+require "keybinds"
 
 require("nvim-web-devicons").setup {}
 require("nvim-treesitter.configs").setup {
@@ -10,7 +11,8 @@ require("nvim-treesitter.configs").setup {
 
   sync_install = false
 }
-require("nvim-tree").setup()
+
+require('fidget').setup()
 
 local actions = require("telescope.actions")
 require("telescope").setup {
@@ -22,6 +24,8 @@ require("telescope").setup {
     }
   }
 }
+require('telescope').load_extension('fidget')
+
 require("lualine").setup({
   options = {
     theme = "wombat"
@@ -30,4 +34,17 @@ require("lualine").setup({
 
 require("Comment").setup {
   ignore = "^$"
+}
+
+require("mini.surround").setup {}
+
+require("mason").setup()
+require("mason-lspconfig").setup {
+  ensure_installed = { "lua_ls", "phpactor" },
+  automatic_installation = true,
+}
+require("mason-lspconfig").setup_handlers {
+  function (server_name)
+    require("lspconfig")[server_name].setup {}
+  end,
 }
