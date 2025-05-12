@@ -9,7 +9,11 @@ end
 
 return {
   -- by default, build all fnl/ files into lua/
-  build = true,
+  build = {
+    { verbose = true, },
+    { "init.fnl", true, },
+    { "fnl/**/*.fnl", true }
+  },
   -- remove stale lua/ files
   clean = true,
   compiler = {
