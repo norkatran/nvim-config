@@ -56,4 +56,4 @@
                  :L3MON4D3/LuaSnip
                  :saadparwaiz1/cmp_luasnip
                  :j-hui/fidget.nvim]}
-  {1 :atweiden/vim-fennel}]
+ {1 :atweiden/vim-fennel}]

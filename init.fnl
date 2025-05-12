@@ -22,6 +22,7 @@
         (vim.fn.getchar)
         (os.exit 1)))
     repo-path))
+
 (local lazy-path (ensure-installed :folke/lazy.nvim :stable))
 (local hotpot-path (ensure-installed :rktjmp/hotpot.nvim :v0.14.8))
 (vim.opt.runtimepath:prepend [hotpot-path lazy-path])
@@ -29,28 +30,31 @@
 
 (require :hotpot)
 
-((. (require :lazy) :setup) { :spec { :import :plugins }})
+((. (require :lazy) :setup) {:spec {:import :plugins}})
 
 (let [hotpot (require :hotpot)
-             setup hotpot.setup]
+      setup hotpot.setup]
   (setup {:compiler {:modules {:correlate true}
-         :macros {:env :_COMPILER
-         :compilerEnv _G
-         :allowedGlobals false}}})
+                     :macros {:env :_COMPILER
+                              :compilerEnv _G
+                              :allowedGlobals false}}})
 
-  (fn rebuild-on-save [{: buf }]
-    (let [{: build } (require :hotpot.api.make)
-             au-config {:buffer buf
-                        :callback #(build (vim.fn.stdpath :config)
-                                          {:verbose true :atomic true
-                                           :compiler {:modules {:allowedGlobals (icollect [n _ (pairs _G)] n)}}}
-                                           [["init.fnl" true]])}]
+  (fn rebuild-on-save [{: buf}]
+    (let [{: build} (require :hotpot.api.make)
+          au-config {:buffer buf
+                     :callback #(build (vim.fn.stdpath :config)
+                                       {:verbose true
+                                        :atomic true
+                                        :compiler {:modules {:allowedGlobals (icollect [n _ (pairs _G)]
+                                                                               n)}}}
+                                       [[:init.fnl true]])}]
       (vim.api.nvim_create_autocmd :BufWritePost au-config)))
 
   (vim.api.nvim_create_autocmd :BufRead
-                               {:pattern (-> (.. (vim.fn.stdpath :config) :/init.fnl)
+                               {:pattern (-> (.. (vim.fn.stdpath :config)
+                                                 :/init.fnl)
                                              (vim.fs.normalize))
-                               :callback rebuild-on-save}))
+                                :callback rebuild-on-save}))
 
 ;; My Config
 
