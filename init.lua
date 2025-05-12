@@ -30,26 +30,27 @@ plugin_utils.setup_multiple(plugin_configs)
 require('telescope').load_extension('fidget')
 
 -- Setup LSP
-require("mason").setup()
-require("mason-lspconfig").setup(plugin_defaults.mason)
+-- require("mason").setup()
+--require("mason-lspconfig").setup(plugin_defaults.mason)
 
 -- Setup LSP handlers with improved configuration
-require("mason-lspconfig").setup_handlers {
-  function (server_name)
-    local server_config = plugin_utils.lsp.server_configs[server_name] or {}
+--require("mason-lspconfig").setup_handlers {
+  --function (server_name)
+    --local server_config = plugin_utils.lsp.server_configs[server_name] or {}
+--
+    ---- Add default capabilities and on_attach if not specified
+    --if not server_config.on_attach then
+      --server_config.on_attach = plugin_utils.lsp.on_attach
+    --end
+--
+    --if not server_config.capabilities then
+      --server_config.capabilities = plugin_utils.lsp.capabilities()
+    --end
+--
+    --require("lspconfig")[server_name].setup(server_config)
+  --end,
+--}
 
-    -- Add default capabilities and on_attach if not specified
-    if not server_config.on_attach then
-      server_config.on_attach = plugin_utils.lsp.on_attach
-    end
-
-    if not server_config.capabilities then
-      server_config.capabilities = plugin_utils.lsp.capabilities()
-    end
-
-    require("lspconfig")[server_name].setup(server_config)
-  end,
-}
-
-require('plugin.git.init')
-
+local event = require('nvit.event')
+vim.cmd('autocmd User ' .. event.REPO_CHANGED .. ' :lua require(\'snacks.dashboard\').update()')
+vim.cmd('autocmd User ' .. event.CURRENT_BRANCH_DELETED .. ' :lua require(\'nvit\').view_branches()')

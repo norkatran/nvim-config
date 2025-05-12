@@ -19,3 +19,6 @@ vim.opt.termguicolors = true
 
 vim.opt.smartcase = true
 vim.opt.ignorecase = true
+
+vim.g.terminal_emulator = 'fish'
+vim.opt.shell = 'fish'

@@ -7,6 +7,8 @@ wk.add({
   { '<leader><leader>', function () require('telescope.builtin').find_files{} end, desc = 'Browse Files', },
   { '<leader>/', function() require('telescope.builtin').live_grep{} end, desc = 'Live Grep', },
   { '<leader>?', function () require('telescope.builtin').keymaps{} end, desc = 'View Keymaps', },
+  { '<leader>y', '"+y', desc = 'Copy', mode = { 'n', 'v' } },
+  { '<leader>Y', '"+yg_', desc = 'Copy', mode = { 'n', 'v' } },
 
   { '<leader>w', group = 'Windows', },
   { '<leader>wh', function () vim.cmd.wincmd('h') end, desc = 'Window Left', },
@@ -15,17 +17,17 @@ wk.add({
   { '<leader>wl', function () vim.cmd.wincmd('l') end, desc = 'Window Right', },
 
   { '<leader>g', group = 'Git' },
-  { '<leader>gr', function () require('plugin.git.init').list_repos() end, desc = 'Git Repos' },
-  { '<leader>gb', function () require('plugin.git.init').list_branches() end, desc = 'Git Branches' },
+  { '<leader>gr', function () require('nvit').view_repos() end, desc = 'Git Repos' },
+  { '<leader>gb', function () require('nvit').view_branches() end, desc = 'Git Branches' },
   { '<leader>gv', group = 'Git Viewer', },
   { '<leader>gvf', function () require('telescope.builtin').git_files{} end, desc = 'Git files', },
   { '<leader>gvS', function () require('telescope.builtin').git_stash{} end, desc = 'Git stashes', },
   { '<leader>gvs', function () require('telescope.builtin').git_status{} end, desc = 'Git status', },
 
   { '<leader>gl', group = 'GitLab' },
-  { '<leader>glm', function () require('plugin.git.init').list_mrs() end, desc = 'Merge Requests', },
-  { '<leader>glr', function () require('plugin.git.init').list_review_requests() end, desc = 'Review Requests', },
-  { '<leader>glt', function () require('plugin.git.init').list_todos() end, desc = 'To Dos', },
+  { '<leader>glm', function () require('nvit').view_merge_requests() end, desc = 'Merge Requests', },
+  { '<leader>glr', function () require('nvit').view_reviews() end, desc = 'Review Requests', },
+  { '<leader>glt', function () require('nvit').view_notifications() end, desc = 'Notifications', },
 
   { '<leader>n', group = 'Notifications' },
   { '<leader>nn', function () require('telescope').extensions.fidget.fidget() end, desc = 'View Notification History' },
