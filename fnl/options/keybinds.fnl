@@ -1,6 +1,6 @@
 (macro cmd! [x] (.. :<Cmd> x :<CR>))
 (macro wincmd! [x] `(fn [] (vim.cmd.wincmd ,x)))
-(macro module-call! [module method args] `(fn [] (: (require ,module) ,method) (if ,args ,args {})))
+(macro module-call! [module method args] `(fn [] ((. (require ,module) ,method) (if ,args ,args {}))))
 
 (macro leader! [binding]
   (let [(k1# c1# a1#) (unpack binding)]
@@ -29,7 +29,7 @@
                      [:j (wincmd! :j) { "desc" "Window Down" }]
                      [:k (wincmd! :k) { "desc" "Window Up" }]
                      [:l (wincmd! :l) { "desc" "Window Right" }]
-                    ])
+                    ] :wi)
 
   (leader-group! "git" [
                         [:r (module-call! :nvit :view_repos) { "desc" "Git Repos" }]
@@ -48,12 +48,11 @@
   ;; oh god i hate this line
   (leader! [:n (fn [] (: (. (. (require :telescope) :extensions) :fidget) :fidget)) { "desc" "Notifications" } ])
 
-  (leader-group! "scratchpad" [
-                               [:o (module-call! :utils.workbook :open_scratchpad_in_window) { "desc" "Open scratchpad as file" }]
-                               [:s (module-call! :utils.workbook :scratchpad) { "desc" "Open scratchpad" }]
-                               [:/ (module-call! :utils.workbook :grep_scratchpads) { "desc" "Grep scratchpads" }]
-                               [:<leader> (module-call! :utils.workbook :view_scratchpads) { "desc" "View scratchpads" }]
-                               ])
+  (leader-group! "workbook" [
+                               [:s (module-call! :feature.workbook :workbook) { "desc" "Open workbook" }]
+                               [:/ (module-call! :feature.workbook :grep-workbooks) { "desc" "Grep workbooks" }]
+                               [:<leader> (module-call! :feature.workbook :view-workbooks) { "desc" "View workbooks" }]
+                               ] :wo)
 
   (leader-group! "buffers" [
                             [:b (cmd! "Telescope buffers") { :desc "View Buffers" }]

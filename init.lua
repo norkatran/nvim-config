@@ -54,7 +54,4 @@ do
   vim.api.nvim_create_autocmd("BufRead", {pattern = vim.fs.normalize((vim.fn.stdpath("config") .. "/init.fnl")), callback = rebuild_on_save})
 end
 require("options.keybinds")
-require("options.commands")
-local event = require("nvit.event")
-vim.cmd(("autocmd User " .. event.REPO_CHANGED .. " :lua require('snacks.dashboard').update()"))
-return vim.cmd(("autocmd User " .. event.CURRENT_BRANCH_DELETED .. " :lua require('nvit').view_branches()"))
+return require("options.commands")
