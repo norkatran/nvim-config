@@ -1,20 +1,33 @@
 require "options"
 require "keybinds"
 require "bootstrap"
-require "dep" {
-  {
-    "nvim-tree/nvim-tree.lua",
-    requires = { "nvim-tree/nvim-web-devicons" }
-  },
-  {
-    "nvim-lualine/lualine.nvim",
-    requires = { "nvim-tree/nvim-web-devicons" }
+
+require("lazy").setup("plugins")
+
+require("nvim-web-devicons").setup {}
+require("nvim-treesitter.configs").setup {
+  ensure_installed = { "lua", "vim", "vimdoc", "markdown", "markdown_inline", "php", "cpp", "diff", "phpdoc", "typescript" },
+
+  sync_install = false
+}
+require("nvim-tree").setup()
+
+local actions = require("telescope.actions")
+require("telescope").setup {
+  defaults = {
+    mappings = {
+      i = {
+        ["<esc>"] = actions.close
+      }
+    }
   }
 }
-
-require("nvim-tree").setup()
 require("lualine").setup({
   options = {
-    theme = 'wombat'
+    theme = "wombat"
   }
 })
+
+require("Comment").setup {
+  ignore = "^$"
+}
