@@ -2,14 +2,12 @@
   `(vim.api.nvim_buf_get_name (if ,?buf# ,?buf# 0)))
 
 (macro format! [formatter# file#]
-  `(if ,formatter# (do
-                     (vim.cmd (.. "! "
-                                  (if (= (type ,formatter#) :string)
-                                      ,formatter#
-                                      (,formatter#))
-                                  " " ,file#))
-                     (vim.cmd :e!)
-                     nil)))
+  `(if ,formatter#
+       (let [fmt# (if (= (type ,formatter#) :string) ,formatter# (,formatter#))]
+         (if fmt# (do
+                    (vim.cmd (.. "! " fmt# " " ,file#))
+                    (vim.cmd :e!)
+                    nil)))))
 
 (local modes {:fennel (require :modes.fennel) :php (require :modes.php)})
 

@@ -55,4 +55,5 @@ do
   vim.api.nvim_create_autocmd("BufRead", {pattern = vim.fs.normalize((vim.fn.stdpath("config") .. "/init.fnl")), callback = rebuild_on_save})
 end
 require("options.keybinds")
+require("feature.init")
 return require("options.commands")

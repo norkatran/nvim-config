@@ -25,7 +25,8 @@
   (let [title (if title title (default-title))
         f (assert (io.open (.. workbook-location title) :a))]
     (do
-      (f:write content) (io.close f)
+      (f:write content)
+      (io.close f)
       (fidget.notify (.. "Wrote to workbook " title) vim.log.levels.INFO
                      {:group notification-group}))))
 
@@ -44,6 +45,7 @@
 
 (fn view-workbooks []
   ((. (require :telescope.builtin) :find_files) {:cwd workbook-location}))
+
 (fn grep-workbooks []
   ((. (require :telescope.builtin) :live_grep) {:cwd workbook-location}))
 
@@ -52,5 +54,21 @@
       (fidget.notify "Created workbook directory" vim.log.levels.INFO
                      {:group notification-group})
       (vim.system [:mkdir :-p workbook-location])))
+
+((. (require :which-key) :add) [{1 :<leader>wo :group :Workbook}
+                                {1 :<leader>wo<leader>
+                                 2 (fn []
+                                     ((. (require :feature.workbook) :workbook)))
+                                 :desc "Open workbook"}
+                                {1 :<leader>wo/
+                                 2 (fn []
+                                     ((. (require :feature.worbook)
+                                         :grep-workbooks)))
+                                 :desc "Search workbooks"}
+                                {1 :<leader>wow
+                                 2 (fn []
+                                     ((. (require :feature.workbook)
+                                         :view-workbooks)))
+                                 :desc "Browse workbooks"}])
 
 {: workbook : view-workbooks : grep-workbooks}

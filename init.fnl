@@ -60,5 +60,6 @@
 ;; My Config
 
 (require :options.keybinds)
+(require :feature.init)
 
 (require :options.commands)
