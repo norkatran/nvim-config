@@ -21,25 +21,7 @@
         (table.insert expansions# [(.. :<leader> mnemonic# k2#) c2# a2#])))
     grouping#))
 
-(local bindings [(leader-group! :git
-                                [[:r
-                                  (module-call! :nvit :view_repos)
-                                  {:desc "Git Repos"}]
-                                 [:b
-                                  (module-call! :nvit :view_branches)
-                                  {:desc "Git Branches"}]])
-                 (leader-group! :gitlab
-                                [[:m
-                                  (module-call! :nvit :view_merge_requests)
-                                  {:desc "Merge Requests"}]
-                                 [:r
-                                  (module-call! :nvit :view_reviews)
-                                  {:desc "Review Requests"}]
-                                 [:n
-                                  (module-call! :nvit :view_notifications)
-                                  {:desc :Notifications}]]
-                                :gl)
-                 (leader-group! :buffers
+(local bindings [(leader-group! :buffers
                                 [;;[:b
                                  ;;(cmd! "Telescope buffers")
                                  ;;{:desc "View Buffers"}]

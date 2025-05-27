@@ -24,12 +24,17 @@
     (for [_ 1 times 1] (table.insert out str))
     (table.concat out)))
 
+(fn truncate [str len]
+  (if (> (length str) len)
+      (.. (string.sub str 1 (- len 2)) "..")
+      str))
+
 (fn pad-truncate [str len]
   (if (= (length str) len)
       str
       (if (< (length str) len)
           (.. str (str-repeat " " (- len (length str))))
-          (.. (string.sub str 1 (- len 2)) ".."))))
+          (truncate str len))))
 
 (local state {:processes []})
 (fn render-processes []
@@ -45,28 +50,40 @@
 (fn background-process [process ?opts]
   (let [opts (or ?opts {})
         on-success (or (?. opts :on-success) nil)
-        silent? (or (?. opts :silent) false)]
-    (table.insert state.processes process)
-    (render-processes)
-    (vim.system process {}
-                (fn [out]
-                  (vim.schedule (fn []
-                                  (tset state :processes
-                                        (without state.processes process))
-                                  (render-processes)
-                                  (if (= out.code 0)
-                                      (do
-                                        (when on-success
-                                          (on-success out.stdout))
-                                        (when (not silent?)
-                                          (vim.notify (.. "Finished running cmd: "
-                                                          (table.concat process
-                                                                        " "))
-                                                      vim.log.levels.INFO)))
-                                      (vim.notify (.. :Process
-                                                      (if silent? process "")
-                                                      "returned error code:"
-                                                      (tostring out.code))
-                                                  vim.log.levels.ERROR))))))))
+        cwd (or (?. opts :on-success) nil)
+        silent? (or (?. opts :silent) false)
+        sync? (or (?. opts :sync) false)
+        callback (fn [out]
+                   (when (not sync?)
+                     (tset state :processes (without state.processes process))
+                     (render-processes))
+                   (if (= out.code 0)
+                       (do
+                         (when on-success
+                           (on-success out.stdout))
+                         (when (not silent?)
+                           (vim.notify (.. "Finished running cmd: "
+                                           (table.concat process " "))
+                                       vim.log.levels.INFO)))
+                       (do
+                         (vim.notify (.. :Process
+                                         (if silent?
+                                             (truncate (table.concat process
+                                                                     " ")
+                                                       20)
+                                             "")
+                                         "returned error code:"
+                                         (tostring out.code))
+                                     vim.log.levels.ERROR)
+                         (vim.print out.stderr))))]
+    (if sync? (let [proc (vim.system process)
+                    out (proc:wait)]
+                (callback out))
+        (do
+          (table.insert state.processes process)
+          (render-processes)
+          (vim.system process {}
+                      (fn [out]
+                        (vim.schedule (fn [] (callback out)))))))))
 
 {: map : without : insert-at : str-repeat : pad-truncate : background-process}

@@ -17,6 +17,8 @@
 (tset vim.opt :termguicolors true)
 (tset vim.opt :smartcase true)
 (tset vim.opt :ignorecase true)
+(tset vim.opt :grepprg "rg --vimgrep")
+(tset vim.opt :swapfile false)
 
 (tset vim.g :terminal_emulator :fish)
 (tset vim.opt :shell :fish)

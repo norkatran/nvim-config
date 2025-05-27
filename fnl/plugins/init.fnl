@@ -24,8 +24,4 @@
   :opts {}
   :version :^1.0.0}
  :yorickpeterse/nvim-window
- :echasnovski/mini.surround
- {1 :m-lysa/nvit
-  :dependencies [:MunifTanjim/nui.nvim]
-  :dev true
-  :opts {:repo_paths ["~/worktrees" "~/projects"]}}]
+ :echasnovski/mini.surround]

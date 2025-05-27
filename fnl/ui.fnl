@@ -1,3 +1,5 @@
+(local {: map} (require :utils))
+
 (local which-key (require :which-key))
 (local border-style {:top_left "╭"
                      :top "─"
