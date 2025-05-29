@@ -118,6 +118,7 @@ M.create_input = function (title, handler, options)
   local Input = require("nui.input")
   local Popup = require("nui.popup")
   local Layout = require("nui.layout")
+  options = options or {}
   local input = Input(centered_float_config(title, options), {
     prompt = "> ",
     on_submit = handler
@@ -189,6 +190,7 @@ local function remove_pin(title, rerender)
 end
 
 M.create_pin = function(title, get_items, options)
+  options = options or {}
   local max_height = options.max_height or 4
   local position = options.position or "top-right"
   local keep = options.keep or false

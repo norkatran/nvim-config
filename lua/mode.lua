@@ -1,3 +1,6 @@
+local utils = require('utils')
+
+
 local function get_buffer_name(buf)
   return vim.api.nvim_buf_get_name(buf or 0)
 end
@@ -6,8 +9,12 @@ local function format(formatter, file)
   if formatter then
     local fmt = (type(formatter) == "string") and formatter or formatter()
     if fmt then
-      vim.cmd("! " .. fmt .. " " .. file)
-      vim.cmd("e!")
+      utils.background_process({ fmt, file }, {
+        on_success = function ()
+          vim.cmd("e!")
+        end,
+        silent = true,
+      })
     end
   end
 end

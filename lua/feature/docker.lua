@@ -232,6 +232,4 @@ end
 local function _49_()
   return docker_compose("attach", {profile = true, service = true})
 end
-vim.notify("BLAH")
-print("BLAH")
 return require("which-key").add({{group(), group = "Docker"}, {group("i"), list_images, desc = "Images"}, {group("<leader>"), list_containers, desc = "Containers"}, {group("c"), group = "Compose"}, {group("cu"), _46_, desc = "Up"}, {group("cR"), _47_, desc = "Run (Choose service)"}, {group("cd"), _48_, desc = "Down"}, {group("cA"), _49_, desc = "Attach (Choose Service"}})

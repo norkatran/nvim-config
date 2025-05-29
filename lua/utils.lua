@@ -51,16 +51,17 @@ end
 local state = { processes = {} }
 local function render_processes ()
   require("ui").create_pin("Processes", function (width)
-    M.map(state.processes, function (p)
+    return M.map(state.processes, function (p)
       if type(p) == "string" then
         return M.pad_or_truncate(p, width)
       end
-      M.pad_or_truncate(table.concat(p, " "), width)
+      return M.pad_or_truncate(table.concat(p, " "), width)
     end)
   end)
 end
 
 M.background_process = function (process, options)
+  options = options or {}
   local on_success = options.on_success or nil
   local cwd = options.cwd or nil
   local silent = options.silent or nil
@@ -101,6 +102,11 @@ M.merge = function (obj, obj2)
     obj[key] = value
   end
   return obj
+end
+
+M.insert_at = function (arr, item, idx)
+  table.insert(arr, idx, item)
+  return arr
 end
 
 return M
