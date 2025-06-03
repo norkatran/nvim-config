@@ -3,12 +3,14 @@ local google = "https://www.google.com/search?q=%s"
 local jira = vim.env.JIRA_DOMAIN and (vim.env.JIRA_DOMAIN .. "/browse/%s") or nil
 local wikipedia = "https://en.wikipedia.org/w/index.php?search=%s"
 local gitlab = "https://gitlab.corp.friendmts.com/search?search=%s"
+local github = "https://www.github.com/search?q=%s"
 local config = {
   default = "google",
   ["query-map"] = {
     g = {google, "google"},
     w = {wikipedia, "wikipedia"},
-    gl = {gitlab, "gitlab"}
+    gl = {gitlab, "gitlab"},
+    gh = {github, "github"}
   }
 }
 if jira then
@@ -40,9 +42,6 @@ local function query_browser(input)
   end
   vim.notify(("Opening url " .. q), vim.log.levels.DEBUG)
   return vim.ui.open(q)
-end
-local function get_domain(url)
-  return print(url)
 end
 local function create_config_key()
   local keys = {}

@@ -1,8 +1,15 @@
-local function _1_()
-  local leap = require("leap")
-  local user = require("leap.user")
-  leap.set_default_mappings()
-  leap.opts["equivalence_classes"] = {" \9\13\n", "([{", ")]}", "'\"`"}
-  return user.set_repeat_keys("<enter>", "<backspace>")
-end
-return {{"ggandor/leap.nvim", dependencies = {"tpope/vim-repeat"}, config = _1_}}
+return {
+  {
+    "ggandor/leap.nvim",
+    dependencies = {"tpope/vim-repeat", "folke/which-key.nvim"},
+    config = function ()
+      local leap = require("leap")
+      local user = require("leap.user")
+      require("which-key").add({
+        { 'f', '<Plug>(leap)', desc = 'Leap' }
+      });
+      leap.opts["equivalence_classes"] = {" \9\13\n", "([{", ")]}", "'\"`"}
+      return user.set_repeat_keys("<enter>", "<backspace>")
+    end
+  }
+}

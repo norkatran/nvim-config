@@ -5,23 +5,30 @@ local M = {}
 
 -- Default status texts
 local spotify_status_text = "Spotify: N/A"
+local uname = vim.trim(vim.fn.system('uname'));
 
 -- Default configuration
 local config = {
     -- This command should output the current playing song (e.g., "Artist Name - Song Title")
     -- OR a string indicating Spotify is paused/not running (e.g., "Paused", "Not Playing", "Spotify Not Running").
     -- Example (placeholder - does nothing useful): "echo 'Spotify: Paused'"
-    spotify_check_command = {'osascript', '-e', [[tell application "Spotify"
-                                                 if it is running then
-                                                   if player state is playing then
-                                                     "Playing: " & artist of current track & " - " & name of current track
-                                                   else
-                                                     "Paused: " & artist of current track & " - " & name of current track
-                                                   end if
-                                                 else
-                                                   "Not Running"
-                                                 end if
-                                                 end tell]]},
+    spotify_check_command = {
+      Darwin = {
+        'osascript',
+        '-e',
+        [[tell application "Spotify"
+          if it is running then
+            if player state is playing then
+              "Playing: " & artist of current track & " - " & name of current track
+            else
+              "Paused: " & artist of current track & " - " & name of current track
+            end if
+          else
+            "Not Running"
+          end if
+        end tell]]
+      }
+    },
 
     spotify_refresh_interval = 1000, -- milliseconds (e.g., 30000 for 30 seconds)
     spotify_icons = {
@@ -34,7 +41,7 @@ local config = {
 
 -- Function to update Spotify status
 local function check_spotify()
-    vim.system(config.spotify_check_command, { text = true, shell = true }, vim.schedule_wrap(function(obj)
+    vim.system(config.spotify_check_command[uname], { text = true, shell = true }, vim.schedule_wrap(function(obj)
         if obj.code == 0 and obj.stdout then
             local track_info = vim.trim(obj.stdout)
             if track_info == "" or
@@ -83,25 +90,27 @@ function M.setup(user_config)
     end
 
 
-    -- Spotify checker timer
-    local spotify_timer = vim.uv.new_timer()
-    if spotify_timer then
-        spotify_timer:start(3000, config.spotify_refresh_interval, vim.schedule_wrap(check_spotify)) -- Start after 3s, then repeat
-    else
-        vim.notify("Failed to create Spotify timer.", vim.log.levels.ERROR, {title = "Status Setup"})
+    if config.spotify_check_command[uname] then
+      -- Spotify checker timer
+      local spotify_timer = vim.uv.new_timer()
+      if spotify_timer then
+          spotify_timer:start(3000, config.spotify_refresh_interval, vim.schedule_wrap(check_spotify)) -- Start after 3s, then repeat
+      else
+          vim.notify("Failed to create Spotify timer.", vim.log.levels.ERROR, {title = "Status Setup"})
+      end
+
+
+      -- Stop timers on exit
+      vim.api.nvim_create_autocmd("VimLeavePre", {
+          pattern = "*",
+          callback = function()
+              if spotify_timer and not spotify_timer:is_closed() then
+                  spotify_timer:stop()
+                  spotify_timer:close()
+              end
+          end,
+      })
     end
-
-
-    -- Stop timers on exit
-    vim.api.nvim_create_autocmd("VimLeavePre", {
-        pattern = "*",
-        callback = function()
-            if spotify_timer and not spotify_timer:is_closed() then
-                spotify_timer:stop()
-                spotify_timer:close()
-            end
-        end,
-    })
 
     vim.notify("Custom status integrations loaded.", vim.log.levels.INFO, {title = "Status Setup"})
 end
