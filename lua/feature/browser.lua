@@ -1,9 +1,19 @@
 local prefix_symbol = "@"
 local google = "https://www.google.com/search?q=%s"
-local jira = (vim.env.JIRA_DOMAIN .. "/browse/%s")
+local jira = vim.env.JIRA_DOMAIN and (vim.env.JIRA_DOMAIN .. "/browse/%s") or nil
 local wikipedia = "https://en.wikipedia.org/w/index.php?search=%s"
 local gitlab = "https://gitlab.corp.friendmts.com/search?search=%s"
-local config = {default = "google", ["query-map"] = {g = {google, "google"}, j = {jira, "jira"}, w = {wikipedia, "wikipedia"}, gl = {gitlab, "gitlab"}}}
+local config = {
+  default = "google",
+  ["query-map"] = {
+    g = {google, "google"},
+    w = {wikipedia, "wikipedia"},
+    gl = {gitlab, "gitlab"}
+  }
+}
+if jira then
+  config["query-map"].j = {jira, "jira"};
+end
 local function url_3f(input)
   return (input:match("[%w%.%-_]+%.[%w%.%-_/]+") ~= nil)
 end
