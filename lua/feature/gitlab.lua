@@ -13,14 +13,36 @@ local expired_3f
 local function _4_(...)
   return cache["expired?"](cache_file, ...)
 end
-expired_3f = _4_
+local write
+local _statusline = ""
+
+local function statusline()
+  return _statusline
+end
+
+local function update_statusline(graph)
+  if not graph then
+    return
+  end
+  table.concat({
+    string.format("%d", graph['merge-requests']),
+    string.format("%d", graph['reviews']),
+    string.format("%d", graph['notifications']),
+  }, " | ")
+  _statusline = "%d %s %d %s %d "
+end
+
 local read
 local function _5_(...)
-  return cache.read(cache_file, ...)
+  local g = cache.read(cache_file, ...)
+  update_statusline(g)
+  return g
 end
 read = _5_
+
 local write
 local function _6_(...)
+  update_statusline(...)
   return cache.write(cache_file, ...)
 end
 write = _6_
@@ -75,7 +97,24 @@ do
 end
 if not _14_ then
   setup_gitlab_21()
-else
+
+  local glab_timer = vim.uv.new_timer()
+  if glab_timer then
+      -- glab_timer:start(3000, 30000, vim.schedule_wrap(get_graph)) -- Start after 3s, then repeat
+  else
+      vim.notify("Failed to create Gitlab timer.", vim.log.levels.ERROR, {title = "Status Setup"})
+  end
+
+  -- Stop timers on exit
+  vim.api.nvim_create_autocmd("VimLeavePre", {
+      pattern = "*",
+      callback = function()
+          if glab_timer and not glab_timer:is_closed() then
+              glab_timer:stop()
+              glab_timer:close()
+          end
+      end,
+  })
 end
 local function format_merge_requests(merge_requests)
   local function _17_(merge_request)
@@ -198,4 +237,11 @@ require("which-key").add({{"<leader>gl", group = "Gitlab"}, {"<leader>glm", view
 local function _36_()
   return state.gitlab
 end
-return {check = _36_, ["view-merge-requests"] = view_merge_requests, ["view-reviews"] = view_reviews, ["view-notifications"] = view_notifications}
+
+return {
+  check = _36_,
+  ["view-merge-requests"] = view_merge_requests,
+  ["view-reviews"] = view_reviews,
+  ["view-notifications"] = view_notifications,
+  statusline = statusline
+}
