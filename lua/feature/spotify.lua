@@ -4,7 +4,7 @@
 local M = {}
 
 -- Default status texts
-local spotify_status_text = "Spotify: N/A"
+local spotify_status_text = ""
 local uname = vim.trim(vim.fn.system('uname'));
 
 -- Default configuration
@@ -111,8 +111,6 @@ function M.setup(user_config)
           end,
       })
     end
-
-    vim.notify("Custom status integrations loaded.", vim.log.levels.INFO, {title = "Status Setup"})
 end
 
 -- Function to get Spotify status for statusline
