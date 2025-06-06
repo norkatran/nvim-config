@@ -218,7 +218,7 @@ if glab_timer then
       end)
     end)) -- Start after 3s, then repeat
 else
-    vim.notify("Failed to create Gitlab timer.", vim.log.levels.ERROR, {title = "Status Setup"})
+    vim.notify("Failed to create Gitlab timer.", vim.log.levels.ERROR, { title = "Status Setup" })
 end
 
 -- Stop timers on exit

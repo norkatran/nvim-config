@@ -1,24 +1,26 @@
 local USER = vim.env.JIRA_USER
+local DOMAIN = vim.env.JIRA_DOMAIN
 local URL = vim.env.JIRA_API
-local cache = require("cache")
-local cache_file = "jira.json"
+
 local state = {issues = {}, ids = {}}
-local _local_1_ = require("utils")
-local map = _local_1_["map"]
-local without = _local_1_["without"]
-local insert_at = _local_1_["insert_at"]
-local pad_truncate = _local_1_["pad_or_truncate"]
-local background_process = _local_1_["background_process"]
+local utils = require("utils")
+local map = utils["map"]
+local without = utils["without"]
+local insert_at = utils["insert_at"]
+local pad_truncate = utils["pad_or_truncate"]
+local background_process = utils["background_process"]
+
 local function parse_issue(json)
   local obj = vim.json.decode(json)
-  local names = obj["names"]
   local fields = obj["fields"]
   return {summary = fields.summary, description = fields.description, status = fields.status.name, key = obj.key, id = obj.id, ["due-date"] = obj.fields.duedate}
 end
+
 local function curl(resource, id, cb_3f)
   local cmd = {"curl", (URL .. resource .. "/" .. id), "--user", USER}
   return background_process(cmd, {silent = true, ["on_success"] = (cb_3f or nil)})
 end
+
 local function task_list()
   local function _2_(width)
     local key_width = 8
@@ -41,6 +43,7 @@ local function task_list()
   end
   return require("ui")["create_pin"]("Jira", _2_)
 end
+
 local function issue_input(on_submit, input)
   local function _7_(key)
     local function _8_(stdout)
@@ -55,6 +58,7 @@ local function issue_input(on_submit, input)
     require("ui")["create_input"]("Issue", _7_)
   end
 end
+
 local function drop_issue(issue)
   local _10_
   do
@@ -76,9 +80,11 @@ local function drop_issue(issue)
     return nil
   end
 end
+
 local function drop_issue_input()
   return issue_input(drop_issue)
 end
+
 local function start_issue(input)
   local function _14_(issue)
     local _16_
@@ -99,6 +105,7 @@ local function start_issue(input)
   end
   issue_input(_14_, input)
 end
+
 local function list_issues()
   local items
   if (#state.issues > 0) then
@@ -117,19 +124,16 @@ local function list_issues()
   return require("ui")["create_menu"]("tasks", items, {desc = {"Currently stored issues"}, mappings = {{"<C-d>", _21_, desc = "Drop Issue"}}})
 end
 
-local jira_branch_pattern = "^([a-zA-Z]+-[0-9]+)"
 
--- local group = vim.api.nvim_create_augroup("jira", { clear = true })
--- vim.api.nvim_create_autocmd("VeryLazy", {
-  --group = group,
-  --callback = function (args)
-    local cwd = vim.uv.cwd()
-    local branch = vim.fs.basename(vim.uv.cwd())
-    local match = branch:match(jira_branch_pattern)
-    if match then
-      start_issue(match)
-    end
-  -- end
--- )
+-- If opening in a worktree that looks like a JIRA ticket, check.
+do
+  local jira_branch_pattern = "^([a-zA-Z]+-[0-9]+)"
 
-return require("which-key").add({{"<leader><leader>j", group = "Jira"}, {"<leader><leader>js", start_issue, desc = "Start Issue"}, {"<leader><leader>jd", drop_issue_input, desc = "Drop Issue"}, {"<leader><leader>j<leader>", list_issues, desc = "List Current Issues"}})
+  local branch = vim.fs.basename(vim.uv.cwd())
+  local match = branch:match(jira_branch_pattern)
+  if match then
+    start_issue(match)
+  end
+end
+
+require("which-key").add({{"<leader><leader>j", group = "Jira"}, {"<leader><leader>js", start_issue, desc = "Start Issue"}, {"<leader><leader>jd", drop_issue_input, desc = "Drop Issue"}, {"<leader><leader>j<leader>", list_issues, desc = "List Current Issues"}})

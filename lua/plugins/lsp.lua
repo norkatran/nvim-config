@@ -10,7 +10,7 @@ local function _1_()
     local lspconfig = require("lspconfig")
     return lspconfig.lua_ls.setup({capabilities = capabilities, settings = {Lua = {diagnostics = {globals = {"bit", "vim", "it", "describe", "before_each", "after_each"}}, runtime = {version = "Lua 5.1"}}}})
   end
-  require("mason-lspconfig").setup({ensure_installed = {"lua_ls", "intelephense", "marksman", "fennel_ls"}, handlers = {_2_, lua_ls = _3_}, automatic_enable = false})
+  require("mason-lspconfig").setup({ensure_installed = {"lua_ls", "intelephense", "marksman", "phpactor", "pint" }, handlers = {_2_, lua_ls = _3_}, automatic_enable = false})
   local function _4_(args)
     return require("luasnip").lsp_expand(args.body)
   end
