@@ -1,6 +1,5 @@
 -- Load Vim options
 require("options.vim")
--- require("mode")
 
 -- Function to ensure a plugin is installed
 local function ensure_plugin_installed(plugin, branch)
